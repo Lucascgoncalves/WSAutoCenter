@@ -1,3 +1,50 @@
+<?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require 'vendor/autoload.php';
+
+$enviado = 'nao';
+$mail = new PHPMailer(true);
+if (isset($_POST['btnsend'])) {
+    $email = $_POST['email'];
+    $nome = $_POST['nome'];
+    $mensagem = 'Mensagem: '.$_POST["msgtxt"].'<br>';
+    $mensagem .= "Nome: $nome<br>";
+    $mensagem .= "E-mail: $email";
+    try {
+        $mail->SMTPDebug = 2;
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'vallmar12.martins@gmail.com';
+        $mail->Password   = 'gmos tsrv xwey cqkp';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        $mail->setFrom($email);
+        $mail->addAddress('vallmar12.martins@gmail.com', 'Você');
+        $mail->isHTML(true);
+        $mail->Subject = 'Novo Email recebido.';
+        $mail->Body    = $mensagem;
+        // $mail->AltBody = 'Este é o corpo da mensagem em texto simples para clientes de e-mail sem suporte a HTML';
+
+        if ($mail->send()) {
+            $enviado = 'sim';
+            header("Location:index.php");
+            exit();
+        }
+    } catch (Exception $e) {
+        echo "Mensagem não pôde ser enviada. Mailer Error: {$mail->ErrorInfo}";
+    }
+}
+
+
+if ($enviado == 'sim') {
+    echo "<script>alert('Recebemos seu e-mail, obrigado!')</script>";
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -254,15 +301,16 @@
             </div>
 
             <div class="col-md-5 offset-md-1 mb-3">
-                <form id="form_email" action="sendmail.php" method="post">
+                <form id="form_email" action="index.php" method="post">
                     <h5>Mande-nos um email</h5>
                     <div class="d-flex flex-column flex-sm-row w-100 gap-2">
                         <label for="newsletter1" class="visually-hidden">Seu melhor email</label>
-                        <input id="newsletter1" type="text" class="form-control" placeholder="Seu e-mail aqui..." title="Te responderemos o mais rápido possível!">
-                        <button class="btn btn-primary" type="button">Enviar</button>
+                        <input name="email" id="newsletter1" type="text" class="form-control" placeholder="Seu e-mail aqui..." title="Te responderemos o mais rápido possível!">
+                        <input name="nome" id="newsletter1" type="text" class="form-control" placeholder="Seu nome">
+                        <button class="btn btn-primary" type="submit" name="btnsend">Enviar</button>
                     </div>
                     <div class="form-floating" style="width:100%;">
-                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
+                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" name="msgtxt"></textarea>
                         <label for="floatingTextarea">Deixe sua mensagem</label>
                     </div>
                 </form>
